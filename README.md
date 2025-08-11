@@ -1,36 +1,73 @@
- # Visual-Inertial Recorder (VIRec)
+# PoseLink
 
-Record camera frames at ~30fps from one or two camera sensors, Inertial Measurement Unit (IMU) measurements at ~100Hz and GPS locations data synced to one clock source on Android devices.
+PoseLink is a real-time mobile capture app for **wireless pose estimation and motion-tracking systems**, built as a fork of [VIRec](https://a3dv.github.io/autvi#virec).  
+It streams **synchronized camera video and sensor data** (IMU, GPS, magnetometer) to a host computer over the network, enabling flexible single- or multi-camera setups without USB tethering.
 
-The app is released at [here](https://github.com/A3DV/VIRec/releases).
+---
 
-## Description
+## Features (Planned)
 
-The app is developed from the [Grafika](https://github.com/google/grafika) project.
+- 📹 **Live camera streaming** (MJPEG/HTTP, RTSP, or WebRTC)
+- 📡 **Sensor data streaming** (accelerometer, gyroscope, magnetometer, GPS)
+- ⏱ **Time-synchronized frames & IMU** for accurate motion analysis
+- 🔧 **Remote camera control** (exposure, focus, resolution) via API
+- ⚡ **Low-latency modes** for real-time tracking
+- 🔄 **USB fallback** when Wi-Fi performance is insufficient
+- 📂 **Optional local recording** of raw or encoded streams
+- 🛠 **Configurable output formats** for integration with research pipelines
 
-* Camera frames are saved into H.264/MP4 videos by using the Camera2 API (setRepeatingRequest, onCaptureCompleted), OpenGL ES (GLSurfaceView and GLSurfaceView.Renderer), and MediaCodec and MediaMuxer.
-* The metadata for camera frames are saved to a csv.
-* The timestamps for each camera frame are saved to a txt.
-* IMU & GPS data are recorded on a background HandlerThread.
+---
 
-## Features
+## Origin
 
-* ~30fps camera frames, 100Hz IMU measurements and GPS data
-* The visual, inertial and location data are synchronized to one clock.
-* The focal length in pixels and exposure duration are recorded.
-* Dual camera recording at the same time.
-* Select from multiple filters to apply it to the recorded video.
+This project is based on the open-source [VIRec](https://a3dv.github.io/autvi#virec) application, originally designed for visual-inertial recording with dual camera support.  
+PoseLink adapts and extends VIRec’s architecture to support **live IP streaming and multi-sensor data delivery** tailored for pose estimation workflows.
 
-## Citing
-Please adequately refer to the papers any time this Work is being used. If you do publish a paper where this Work helped your research, Please cite the following papers in your publications.
+---
 
-```
-@misc{samadzadeh2024amirkabir,
-    title={Amirkabir campus dataset: Real-world challenges and scenarios of Visual Inertial Odometry (VIO) for visually impaired people},
-    author={Ali Samadzadeh and Mohammad Hassan Mojab and Heydar Soudani and Seyed Hesamoddin Mireshghollah and Ahmad Nickabadi},
-    year={2024},
-    eprint={2401.03604},
-    archivePrefix={arXiv},
-    primaryClass={cs.CV}
-}
-```
+## Planned Architecture
+
+- **Android (Camera2 + SensorManager)** →  
+  Encoded video + sensor JSON packets →  
+  **Network Transport (HTTP/RTSP/WebRTC)** →  
+  **Python/C++ client** for processing in pose estimation or motion tracking systems.
+
+---
+
+## Development Checklist
+
+### Core Networking
+- [ ] Implement MJPEG/HTTP streaming from camera frames
+- [ ] Implement `/sensors.json` endpoint for live IMU/GPS data
+- [ ] Add synchronized timestamps to video & sensor streams
+- [ ] Implement optional RTSP streaming of H.264 bitstream
+
+### Sensor Integration
+- [ ] Poll accelerometer, gyroscope, magnetometer at high rate
+- [ ] Fuse orientation (quaternion) from raw IMU data
+- [ ] Integrate GPS (if available)
+- [ ] Ensure timestamp sync with camera frames
+
+### Remote Control API
+- [ ] Implement commands for exposure, focus, resolution
+- [ ] Add camera switch (front/rear) control
+- [ ] Add flashlight control
+
+### Client Tools
+- [ ] Python reference client (OpenCV + Requests)
+- [ ] 3-D visualization of live camera pose
+- [ ] CSV/JSON logging for offline analysis
+
+### Performance & Stability
+- [ ] Wi-Fi latency measurement & optimization
+- [ ] Battery usage profiling
+- [ ] Error handling for dropped frames/connections
+- [ ] USB fallback mode
+
+---
+
+## License
+
+PoseLink follows the original VIRec license. See [LICENSE](LICENSE) for details.
+
+---
