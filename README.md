@@ -1,4 +1,4 @@
-# Visual-Inertial Recorder (VIRec)
+ # Visual-Inertial Recorder (VIRec)
 
 Record camera frames at ~30fps from one or two camera sensors, Inertial Measurement Unit (IMU) measurements at ~100Hz and GPS locations data synced to one clock source on Android devices.
 
