@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="8dp"
     app:cardUseCompatPadding="true"
     app:strokeWidth="1dp">
@@ -57,11 +56,11 @@
             android:id="@+id/tv_desc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Describes what this sensor measures and how it’s used."
-            android:textSize="12sp"
             android:alpha="0.7"
+            android:lineSpacingExtra="2dp"
             android:paddingTop="4dp"
-            android:lineSpacingExtra="2dp" />
+            android:text="Describes what this sensor measures and how it’s used."
+            android:textSize="12sp" />
 
         <!-- Values grid -->
         <LinearLayout

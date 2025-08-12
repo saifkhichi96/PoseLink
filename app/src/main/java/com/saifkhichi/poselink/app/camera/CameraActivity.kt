@@ -27,6 +27,7 @@ import android.widget.Spinner
 import android.widget.TextView
 import com.saifkhichi.poselink.R
 import com.saifkhichi.poselink.app.AboutActivity
+import com.saifkhichi.poselink.app.RecordingsActivity
 import com.saifkhichi.poselink.app.SettingsActivity
 import com.saifkhichi.poselink.app.sensors.ImuViewerActivity
 import com.saifkhichi.poselink.core.camera.AspectFrameLayout
@@ -492,17 +493,16 @@ class CameraActivity : CameraActivityBase(), PopupMenu.OnMenuItemClickListener {
     }
 
     override fun onMenuItemClick(item: MenuItem): Boolean {
-        if (item.itemId == R.id.menu_settings) {
-            val toSettings = Intent(this, SettingsActivity::class.java)
-            startActivity(toSettings)
-        } else if (item.itemId == R.id.menu_imu) {
-            val toImuViewer = Intent(this, ImuViewerActivity::class.java)
-            startActivity(toImuViewer)
-        } else if (item.itemId == R.id.menu_about) {
-            val toAbout = Intent(this, AboutActivity::class.java)
-            startActivity(toAbout)
+        when (item.itemId) {
+            R.id.menu_imu -> Intent(this, ImuViewerActivity::class.java)
+            R.id.menu_recordings -> Intent(this, RecordingsActivity::class.java)
+            R.id.menu_settings -> Intent(this, SettingsActivity::class.java)
+            R.id.menu_about -> Intent(this, AboutActivity::class.java)
+            else -> null
+        }?.let {
+            startActivity(it)
+            return true
         }
-
         return false
     }
 }

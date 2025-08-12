@@ -21,6 +21,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.saifkhichi.poselink.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
         <activity
             android:name=".app.SettingsActivity"
             android:exported="true"
@@ -30,6 +41,11 @@
             android:name="com.saifkhichi.poselink.app.sensors.ImuViewerActivity"
             android:exported="true"
             android:label="@string/title_imu"
+            android:parentActivityName="com.saifkhichi.poselink.app.camera.CameraActivity" />
+        <activity
+            android:name=".app.RecordingsActivity"
+            android:exported="true"
+            android:label="@string/title_recordings"
             android:parentActivityName="com.saifkhichi.poselink.app.camera.CameraActivity" />
         <activity
             android:name=".app.AboutActivity"
