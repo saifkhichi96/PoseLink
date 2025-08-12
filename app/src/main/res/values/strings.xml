@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
-    <string name="app_name">VIRec</string>
+    <string name="app_name">PoseLink</string>
     <string name="cameraOutputDirLabel_text">Output folder:</string>
     <string name="cameraOutputDir_text">[dir name]</string>
     <string name="toggleRecordingOn">Record</string>
@@ -44,5 +44,5 @@
         8. <b>gyro_accel.csv</b>: IMU data.\n
         9. <b>location.csv</b>: GPS data.\n
     </string>
-    <string name="versionName">VIRec v%1$s</string>
+    <string name="versionName">PoseLink v%1$s</string>
 </resources>

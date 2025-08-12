@@ -5,6 +5,7 @@ import android.text.method.LinkMovementMethod
 import androidx.appcompat.app.AppCompatActivity
 import com.saifkhichi.poselink.R
 import com.saifkhichi.poselink.databinding.AboutActivityBinding
+import com.saifkhichi.poselink.storage.FileHelper
 
 class AboutActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -14,14 +15,18 @@ class AboutActivity : AppCompatActivity() {
 
         val hyperlink = binding.linkTextView
         val linkText = getResources().getString(R.string.link_foreword)
-        val text = com.saifkhichi.poselink.storage.FileHelper.fromHtml(
+        val text = FileHelper.fromHtml(
             linkText + " " +
-                    "<a href='https://github.com/A3DV/VIRec'>GitHub</a>."
+                    "<a href='https://github.com/saifkhichi96/PoseLink'>GitHub</a>."
         )
         hyperlink.movementMethod = LinkMovementMethod.getInstance()
         hyperlink.text = text
 
-        // val versionName = findViewById<TextView>(R.id.versionText)
-        // versionName.setText(getString(R.string.versionName, BuildConfig.VERSION_NAME))
+        val versionName = binding.versionText
+        val packageInfo = packageManager.getPackageInfo(packageName, 0)
+        versionName.text = getString(
+            R.string.versionName,
+            packageInfo.versionName
+        )
     }
 }
