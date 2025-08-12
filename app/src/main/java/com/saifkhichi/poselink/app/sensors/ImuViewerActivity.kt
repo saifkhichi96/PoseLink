@@ -3,7 +3,7 @@ package com.saifkhichi.poselink.app.sensors
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.saifkhichi.poselink.R
-import com.saifkhichi.poselink.core.sensors.ImuViewContent.SingleAxis
+import com.saifkhichi.poselink.app.ui.sensors.ImuKind
 import com.saifkhichi.poselink.databinding.MenuIntentActivityBinding
 
 class ImuViewerActivity : AppCompatActivity(), ImuViewFragment.OnListFragmentInteractionListener {
@@ -21,6 +21,6 @@ class ImuViewerActivity : AppCompatActivity(), ImuViewFragment.OnListFragmentInt
         }
     }
 
-    override fun onListFragmentInteraction(item: SingleAxis?) {
+    override fun onListFragmentInteraction(kind: ImuKind) {
     }
 }
