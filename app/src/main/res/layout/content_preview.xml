@@ -2,7 +2,7 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <io.a3dv.VIRec.AspectFrameLayout
+    <com.saifkhichi.poselink.core.camera.AspectFrameLayout
         android:id="@+id/cameraPreview_afl"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -10,7 +10,7 @@
         android:layout_centerInParent="true"
         android:layout_centerHorizontal="true">
 
-        <io.a3dv.VIRec.SampleGLView
+        <com.saifkhichi.poselink.app.camera.SampleGLView
             android:id="@+id/cameraPreview_surfaceView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -20,7 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <io.a3dv.VIRec.SampleGLView
+            <com.saifkhichi.poselink.app.camera.SampleGLView
                 android:id="@+id/cameraPreview_surfaceView2"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -32,7 +32,7 @@
                 app:layout_constraintHeight_percent="0.25"
                 app:layout_constraintWidth_percent="0.25" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </io.a3dv.VIRec.AspectFrameLayout>
+    </com.saifkhichi.poselink.core.camera.AspectFrameLayout>
 
     <TextView
         android:id="@+id/cameraParams_text"

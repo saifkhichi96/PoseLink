@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:theme="@style/cameraContentText"
-    tools:context=".CameraActivity">
+    tools:context=".app.camera.CameraActivity">
 
     <include layout="@layout/content_preview" />
 

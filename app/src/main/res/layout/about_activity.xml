@@ -6,7 +6,7 @@
     android:fillViewport="true"
     android:orientation="vertical"
     android:scrollbars="vertical"
-    tools:context=".AboutActivity">
+    tools:context=".app.AboutActivity">
 
     <LinearLayout
         android:layout_width="match_parent"

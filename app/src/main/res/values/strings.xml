@@ -33,7 +33,7 @@
     <string name="more">More Options</string>
     <string name="about_data">
         \n
-        All data sessions are saved in \'/Android/data/io.a3dv.VIRec/files/data/\' on the SD card. Each data session in a folder named after the local time at the start of recording has nine files:\n\n
+        All data sessions are saved in \'/Android/data/com.saifkhichi.poselink/files/data/\' on the SD card. Each data session in a folder named after the local time at the start of recording has nine files:\n\n
         1. <b>movie.mp4</b>: Main camera frames.\n
         2. <b>movie2.mp4</b>: Secondary camera frames.\n
         3. <b>frame_timestamps.txt</b>: timestamp for each frame of main camera.\n

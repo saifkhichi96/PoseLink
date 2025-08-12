@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="io.a3dv.VIRec">
+    package="com.saifkhichi.poselink">
 
     <!-- Camera, Storage, and Location permissions -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
 
@@ -28,22 +27,22 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat">
         <activity
-            android:name=".SettingsActivity"
+            android:name=".app.SettingsActivity"
             android:exported="true"
             android:label="@string/title_settings"
-            android:parentActivityName="io.a3dv.VIRec.CameraActivity" />
+            android:parentActivityName="com.saifkhichi.poselink.app.camera.CameraActivity" />
         <activity
-            android:name=".ImuViewerActivity"
+            android:name="com.saifkhichi.poselink.app.sensors.ImuViewerActivity"
             android:exported="true"
             android:label="@string/title_imu"
-            android:parentActivityName="io.a3dv.VIRec.CameraActivity" />
+            android:parentActivityName="com.saifkhichi.poselink.app.camera.CameraActivity" />
         <activity
-            android:name=".AboutActivity"
+            android:name=".app.AboutActivity"
             android:exported="true"
             android:label="@string/title_about"
-            android:parentActivityName="io.a3dv.VIRec.CameraActivity" />
+            android:parentActivityName="com.saifkhichi.poselink.app.camera.CameraActivity" />
         <activity
-            android:name=".MainActivity"
+            android:name=".app.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -53,7 +52,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".CameraActivity"
+            android:name="com.saifkhichi.poselink.app.camera.CameraActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity" />
