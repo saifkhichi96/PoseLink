@@ -42,8 +42,9 @@ dependencies {
     implementation 'androidx.preference:preference-ktx:1.2.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-    implementation 'com.google.android.material:material:1.12.0'
-    implementation 'com.jakewharton.timber:timber:5.0.1'
+    implementation 'com.google.android.material:material:1.12.0'  // Material Design components
+    implementation 'com.jakewharton.timber:timber:5.0.1'  // logging library
+    implementation 'org.nanohttpd:nanohttpd:2.3.1'  // tiny HTTP server
 
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 }
