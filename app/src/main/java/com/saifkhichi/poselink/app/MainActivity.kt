@@ -12,6 +12,16 @@ import com.saifkhichi.poselink.app.camera.CameraActivity
 import com.saifkhichi.poselink.databinding.MainActivityBinding
 import java.util.Arrays
 
+/**
+ * MainActivity is the launcher and entry point of the app.
+ *
+ * This activity checks for required permissions (e.g., camera access) on startup.
+ * If all permissions are granted, it immediately redirects the user to CameraActivity.
+ * If any permission is missing, it requests them and exits the app if not granted.
+ *
+ * This ensures users cannot proceed without granting essential permissions, providing
+ * a secure and predictable experience from the start.
+ */
 class MainActivity : Activity() {
     private lateinit var binding: MainActivityBinding
 
@@ -19,11 +29,6 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         binding = MainActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        // if (ifBuildConfig.DEBUG) {
-        //    plant(DebugTree())
-        //}
-
         checkPermissions()
     }
 
@@ -31,7 +36,7 @@ class MainActivity : Activity() {
      * Checks the dynamically-controlled permissions and requests missing permissions from end user.
      * see https://developer.here.com/documentation/android-starter/dev_guide/topics/request-android-permissions.html
      */
-    protected fun checkPermissions() {
+    private fun checkPermissions() {
         val missingPermissions: MutableList<String?> = ArrayList<String?>()
         // check all required dynamic permissions
         for (permission in REQUIRED_SDK_PERMISSIONS) {

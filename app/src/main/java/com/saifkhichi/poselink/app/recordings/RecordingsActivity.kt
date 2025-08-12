@@ -1,13 +1,12 @@
-package com.saifkhichi.poselink.app
+package com.saifkhichi.poselink.app.recordings
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.saifkhichi.poselink.R
-import com.saifkhichi.poselink.app.SettingsFragment.OnFragmentInteractionListener
+import com.saifkhichi.poselink.app.settings.SettingsFragment
 import com.saifkhichi.poselink.databinding.MenuIntentActivityBinding
-import com.saifkhichi.poselink.app.recordings.RecordingBrowserFragment
 
-class RecordingsActivity : AppCompatActivity(), OnFragmentInteractionListener {
+class RecordingsActivity : AppCompatActivity(), SettingsFragment.OnFragmentInteractionListener {
     private lateinit var binding: MenuIntentActivityBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {

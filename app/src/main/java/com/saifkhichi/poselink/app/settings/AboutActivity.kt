@@ -1,4 +1,4 @@
-package com.saifkhichi.poselink.app
+package com.saifkhichi.poselink.app.settings
 
 import android.os.Bundle
 import android.text.method.LinkMovementMethod

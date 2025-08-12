@@ -1,12 +1,11 @@
-package com.saifkhichi.poselink.app
+package com.saifkhichi.poselink.app.settings
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.saifkhichi.poselink.R
-import com.saifkhichi.poselink.app.SettingsFragment.OnFragmentInteractionListener
 import com.saifkhichi.poselink.databinding.MenuIntentActivityBinding
 
-class SettingsActivity : AppCompatActivity(), OnFragmentInteractionListener {
+class SettingsActivity : AppCompatActivity(), SettingsFragment.OnFragmentInteractionListener {
     private lateinit var binding: MenuIntentActivityBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {

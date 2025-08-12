@@ -25,8 +25,7 @@ import android.util.Size
 import android.view.Surface
 import androidx.preference.PreferenceManager
 import com.saifkhichi.poselink.app.camera.CameraActivityBase
-import com.saifkhichi.poselink.app.camera.DesiredCameraSetting
-import com.saifkhichi.poselink.core.camera.impl.FocalLengthHelper
+import com.saifkhichi.poselink.app.camera.FocalLengthHelper
 import timber.log.Timber
 import java.io.BufferedWriter
 import java.io.FileWriter
@@ -84,11 +83,11 @@ class Camera2Proxy(private val mActivity: Activity, private val mSecondCamera: B
         }
     }
 
-    fun getmTimeSourceValue(): Int? {
+    fun getTimeSourceValue(): Int? {
         return mTimeSourceValue
     }
 
-    fun getmVideoSize(): Size {
+    fun getVideoSize(): Size {
         return mVideoSize!!
     }
 

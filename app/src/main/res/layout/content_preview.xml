@@ -2,7 +2,7 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <com.saifkhichi.poselink.core.camera.AspectFrameLayout
+    <com.saifkhichi.poselink.app.camera.AspectFrameLayout
         android:id="@+id/cameraPreview_afl"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -32,7 +32,7 @@
                 app:layout_constraintHeight_percent="0.25"
                 app:layout_constraintWidth_percent="0.25" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.saifkhichi.poselink.core.camera.AspectFrameLayout>
+    </com.saifkhichi.poselink.app.camera.AspectFrameLayout>
 
     <TextView
         android:id="@+id/cameraParams_text"

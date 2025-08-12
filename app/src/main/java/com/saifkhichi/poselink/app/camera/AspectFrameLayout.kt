@@ -1,4 +1,4 @@
-package com.saifkhichi.poselink.core.camera
+package com.saifkhichi.poselink.app.camera
 
 import android.content.Context
 import android.util.AttributeSet

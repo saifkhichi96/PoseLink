@@ -6,13 +6,28 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
+import javax.microedition.khronos.egl.EGLConfig
+import javax.microedition.khronos.opengles.GL10
 
 class SampleGLView @JvmOverloads constructor(context: Context?, attrs: AttributeSet? = null) :
     GLSurfaceView(context, attrs), OnTouchListener {
-    private var touchListener: TouchListener? = null
+    private var touchListener: ((MotionEvent?, Int, Int) -> Unit)? = null
+
+    interface Renderer : GLSurfaceView.Renderer {
+        override fun onDrawFrame(gl: GL10?)
+
+        override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int)
+
+        override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?)
+    }
 
     init {
         setOnTouchListener(this)
+    }
+
+
+    fun setTouchListener(listener: (MotionEvent?, Int, Int) -> Unit) {
+        this.touchListener = listener
     }
 
     override fun onTouch(v: View, event: MotionEvent): Boolean {
@@ -21,18 +36,11 @@ class SampleGLView @JvmOverloads constructor(context: Context?, attrs: Attribute
             return false
         }
 
-        if (touchListener != null) {
-            touchListener!!.onTouch(event, v.width, v.height)
-        }
-        return false
+        touchListener?.invoke(event, width, height)
+        return true
     }
 
-    fun interface TouchListener {
-        fun onTouch(event: MotionEvent?, width: Int, height: Int)
-    }
-
-    fun setTouchListener(touchListener: TouchListener?) {
-        this.touchListener = touchListener
+    companion object {
+        const val RENDERMODE_WHEN_DIRTY = GLSurfaceView.RENDERMODE_WHEN_DIRTY
     }
 }
-

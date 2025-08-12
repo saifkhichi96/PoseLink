@@ -1,4 +1,4 @@
-package com.saifkhichi.poselink.app
+package com.saifkhichi.poselink.app.settings
 
 import android.app.Activity
 import android.content.Context
@@ -7,7 +7,6 @@ import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
-import android.hardware.camera2.params.StreamConfigurationMap
 import android.media.MediaRecorder
 import android.os.Bundle
 import android.util.Range
@@ -18,7 +17,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import com.saifkhichi.poselink.R
-import com.saifkhichi.poselink.app.camera.DesiredCameraSetting
+import com.saifkhichi.poselink.core.camera.DesiredCameraSetting
 
 class SettingsFragment : PreferenceFragmentCompat(),
     SharedPreferences.OnSharedPreferenceChangeListener {
