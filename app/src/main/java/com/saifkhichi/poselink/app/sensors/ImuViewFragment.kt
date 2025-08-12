@@ -123,8 +123,4 @@ class ImuViewFragment : Fragment(), SensorEventListener {
         fun onListFragmentInteraction(kind: ImuKind) { /* optional */
         }
     }
-
-    companion object {
-        fun newInstance(): ImuViewFragment = ImuViewFragment()
-    }
 }

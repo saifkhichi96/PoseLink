@@ -1,17 +1,24 @@
 package com.saifkhichi.poselink.core.camera
 
+import android.graphics.Bitmap
 import android.graphics.SurfaceTexture
 import android.opengl.EGLContext
+import android.opengl.GLES20
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
+import androidx.core.graphics.createBitmap
 import com.saifkhichi.poselink.gles.EglCore
 import com.saifkhichi.poselink.gles.FullFrameRect
 import com.saifkhichi.poselink.gles.Texture2dProgram
 import com.saifkhichi.poselink.gles.WindowSurface
+import com.saifkhichi.poselink.streaming.JpegFrameProvider
 import timber.log.Timber
+import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.lang.ref.WeakReference
+import java.nio.IntBuffer
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.concurrent.Volatile
 
 /**
@@ -39,7 +46,7 @@ import kotlin.concurrent.Volatile
  *  * for each frame, after latching it with SurfaceTexture#updateTexImage(),
  * call TextureMovieEncoder#frameAvailable().
  */
-class TextureMovieEncoder : Runnable {
+class TextureMovieEncoder : Runnable, JpegFrameProvider {
     // ----- accessed exclusively by encoder thread -----
     private var mInputWindowSurface: WindowSurface? = null
     private var mEglCore: EglCore? = null
@@ -58,6 +65,10 @@ class TextureMovieEncoder : Runnable {
     private var mLastFrameTimeNs: Long? = null
     var mFrameRate: Float = 15f
     private val STMatrix = FloatArray(16)
+
+    private val latestJpegRef = AtomicReference<ByteArray?>()
+
+    override fun latestJpeg(): ByteArray? = latestJpegRef.get()
 
     /**
      * Encoder configuration.
@@ -274,6 +285,38 @@ class TextureMovieEncoder : Runnable {
         )
     }
 
+    private fun flipVertRGBA(src: IntArray, w: Int, h: Int) {
+        var top = 0
+        var bot = h - 1
+        val row = IntArray(w)
+        while (top < bot) {
+            System.arraycopy(src, top * w, row, 0, w)
+            System.arraycopy(src, bot * w, src, top * w, w)
+            System.arraycopy(row, 0, src, bot * w, w)
+            top++; bot--
+        }
+    }
+
+    private fun captureJpegFrame(width: Int, height: Int) {
+        val pixels = IntArray(width * height)
+        val ib = IntBuffer.wrap(pixels).apply { position(0) }
+        GLES20.glReadPixels(0, 0, width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, ib)
+
+        // flip vertically (GL -> image coordinates)
+        flipVertRGBA(pixels, width, height)
+
+        // Convert to Bitmap
+        val bmp = createBitmap(width, height)
+        bmp.copyPixelsFromBuffer(IntBuffer.wrap(pixels))
+
+        // Encode JPEG
+        val baos = ByteArrayOutputStream()
+        bmp.compress(Bitmap.CompressFormat.JPEG, 80, baos)
+        bmp.recycle()
+
+        latestJpegRef.set(baos.toByteArray())
+    }
+
     /**
      * Handles notification of an available frame.
      *
@@ -299,6 +342,7 @@ class TextureMovieEncoder : Runnable {
             mFrameRate = mFrameRate * 0.3f + (1000000000.0 / gapNs * 0.7).toFloat()
         }
         mLastFrameTimeNs = timestampNanos
+        captureJpegFrame(mVideoEncoder!!.width, mVideoEncoder!!.height)
     }
 
     /**

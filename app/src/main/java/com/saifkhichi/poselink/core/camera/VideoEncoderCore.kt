@@ -23,8 +23,11 @@ import java.io.IOException
  * on one thread, and drain the output on a different thread.
  */
 class VideoEncoderCore(
-    width: Int, height: Int, bitRate: Int,
-    outputFile: String, metaFile: String?
+    val width: Int,
+    val height: Int,
+    bitRate: Int,
+    outputFile: String,
+    metaFile: String?
 ) {
     /**
      * Returns the encoder's input surface.

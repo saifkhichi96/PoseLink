@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <title>PoseLink Playground</title>
+    <style>
+        :root {
+          --bg: #0f1216; --fg: #e6edf3; --muted:#9aa4b2; --accent:#4f8cff; --card:#151a21; --border:#2a323c;
+          --ok:#25c26e; --warn:#ffb020; --err:#ff6b6b;
+        }
+        html, body { height:100%; }
+        body {
+          margin:0; background:var(--bg); color:var(--fg); font:14px/1.5 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+          display:flex; flex-direction:column; gap:16px; padding:16px;
+        }
+        h1 { margin:0 0 8px 0; font-size:18px; }
+        .row { display:flex; flex-wrap:wrap; gap:12px; align-items:center; }
+        .card {
+          background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px; min-width:280px;
+          box-shadow: 0 1px 0 rgba(255,255,255,0.02), 0 8px 24px rgba(0,0,0,0.25);
+        }
+        input[type="text"], input[type="number"] {
+          background:#0b0e12; color:var(--fg); border:1px solid var(--border); border-radius:8px; padding:8px 10px;
+          outline:none; min-width:220px;
+        }
+        button {
+          background:var(--accent); color:white; border:none; border-radius:8px; padding:8px 12px; cursor:pointer;
+          transition:filter .15s ease;
+        }
+        button.secondary { background:#2b3542; }
+        button.ghost { background:transparent; border:1px solid var(--border); color:var(--fg); }
+        button:disabled { filter:grayscale(0.6) brightness(0.7); cursor:not-allowed; }
+        code, pre { background:#0b0e12; border:1px solid var(--border); border-radius:8px; padding:10px; overflow:auto; }
+        .status { font-weight:600; }
+        .status.ok { color:var(--ok); }
+        .status.err { color:var(--err); }
+        .grid { display:grid; gap:12px; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); }
+        .media { display:flex; flex-direction:column; gap:8px; }
+        img.media-view, video.media-view {
+          width:100%; background:#0b0e12; border:1px solid var(--border); border-radius:8px; object-fit:contain; aspect-ratio:16/9;
+        }
+        .muted { color:var(--muted); }
+        .kv { display:grid; grid-template-columns: 120px 1fr; gap:8px; }
+        .mono { font-family: ui-monospace, Menlo, Consolas, monospace; }
+    </style>
+</head>
+<body>
+<header class="row">
+    <h1>PoseLink Playground</h1>
+</header>
+
+<section class="card">
+    <div class="row">
+        <label class="muted" for="baseUrl">Base URL</label>
+        <input id="baseUrl" type="text" value="http://localhost:8080"/>
+        <button id="btnHealth">Ping /health</button>
+        <span class="status muted" id="healthStatus">idle</span>
+    </div>
+    <div class="muted" style="margin-top:6px">Examples: <span
+            class="mono">http://192.168.0.23:8080</span> • <span class="mono">http://phone.local:8080</span>
+    </div>
+</section>
+
+<section class="grid">
+    <div class="card">
+        <h3 style="margin-top:0">Sensors (/sensors.json)</h3>
+        <div class="row" style="margin-bottom:8px">
+            <button class="secondary" id="btnSensorsOnce">Fetch once</button>
+            <input id="pollMs" min="100" step="100" title="Interval (ms)" type="number"
+                   value="500"/>
+            <button id="btnSensorsStart">Start polling</button>
+            <button class="ghost" id="btnSensorsStop">Stop</button>
+            <span class="muted" id="pollStatus">stopped</span>
+        </div>
+        <pre class="mono" id="sensorsOut" style="max-height:240px"></pre>
+        <div class="muted">Note: Requires CORS header <code>Access-Control-Allow-Origin: *</code>
+            from the server.
+        </div>
+    </div>
+
+    <div class="card media">
+      <h3 style="margin-top:0">Camera (/shot.jpg or /video)</h3>
+      <div class="row">
+        <button id="btnGetImage" class="secondary">Get Image</button>
+        <button id="btnStreamStart">Stream Video</button>
+        <button id="btnStreamStop" class="ghost">Stop</button>
+        <a id="mediaDownload" href="#" download="shot.jpg" class="muted">download</a>
+      </div>
+      <img id="mediaView" class="media-view" alt="camera output" />
+      <div class="muted">Tip: "Get Image" fetches <code>/shot.jpg</code> once; "Stream Video" sets <code>src</code> to <code>/video</code> (MJPEG).</div>
+    </div>
+</section>
+
+<section class="card">
+    <h3 style="margin-top:0">Details</h3>
+    <div class="kv">
+        <div class="muted">Health:</div>
+        <div class="mono muted" id="healthMeta">—</div>
+        <div class="muted">Last sensors fetch:</div>
+        <div class="mono muted" id="fetchMeta">—</div>
+        <div class="muted">Base URL in use:</div>
+        <div class="mono muted" id="baseMeta">http://localhost:8080</div>
+    </div>
+</section>
+
+<script>
+    (function() {
+      const $ = id => document.getElementById(id);
+      const baseUrlInput = $('baseUrl');
+      const healthBtn = $('btnHealth');
+      const healthStatus = $('healthStatus');
+      const healthMeta = $('healthMeta');
+      const baseMeta = $('baseMeta');
+
+      const sensorsOnceBtn = $('btnSensorsOnce');
+      const sensorsStartBtn = $('btnSensorsStart');
+      const sensorsStopBtn = $('btnSensorsStop');
+      const pollMsInput = $('pollMs');
+      const sensorsOut = $('sensorsOut');
+      const pollStatus = $('pollStatus');
+      const fetchMeta = $('fetchMeta');
+
+      const getImageBtn = $('btnGetImage');
+      const streamStartBtn = $('btnStreamStart');
+      const streamStopBtn = $('btnStreamStop');
+      const mediaView = $('mediaView');
+      const mediaDl = $('mediaDownload');
+
+      let pollTimer = null;
+
+      function url(path) {
+        const b = baseUrlInput.value.replace(/\/+$/, '');
+        return b + path;
+      }
+
+      async function pingHealth() {
+        setStatus(healthStatus, 'checking…', 'muted');
+        baseMeta.textContent = baseUrlInput.value;
+        try {
+          const res = await fetch(url('/health'), { cache: 'no-store' });
+          const ok = res.ok;
+          const text = await res.text().catch(() => '');
+          setStatus(healthStatus, ok ? 'OK' : ('HTTP ' + res.status), ok ? 'ok' : 'err');
+          healthMeta.textContent = text || '(empty response)';
+        } catch (e) {
+          setStatus(healthStatus, 'unreachable', 'err');
+          healthMeta.textContent = String(e);
+        }
+      }
+
+      async function fetchSensorsOnce() {
+        try {
+          const t0 = performance.now();
+          const res = await fetch(url('/sensors.json'), { cache: 'no-store' });
+          const t1 = performance.now();
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const json = await res.json();
+          sensorsOut.textContent = JSON.stringify(json, null, 2);
+          fetchMeta.textContent = `~${(t1 - t0).toFixed(1)} ms`;
+        } catch (e) {
+          sensorsOut.textContent = 'Error: ' + e + '\n\nTip: ensure the server sends CORS header: Access-Control-Allow-Origin: *';
+          fetchMeta.textContent = 'error';
+        }
+      }
+
+      function startPolling() {
+        stopPolling();
+        const ms = Math.max(100, parseInt(pollMsInput.value || '500', 10));
+        pollStatus.textContent = `polling ${ms} ms`;
+        pollTimer = setInterval(fetchSensorsOnce, ms);
+        fetchSensorsOnce();
+      }
+
+      function stopPolling() {
+        if (pollTimer) clearInterval(pollTimer);
+        pollTimer = null;
+        pollStatus.textContent = 'stopped';
+      }
+
+      async function grabImage() {
+        try {
+          const res = await fetch(url('/shot.jpg'), { cache: 'no-store' });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const blob = await res.blob();
+          const objectUrl = URL.createObjectURL(blob);
+          mediaView.src = objectUrl;
+          mediaDl.href = objectUrl;
+        } catch (e) {
+          // fallback: set src directly (may display even if fetch blocked by CORS)
+          mediaView.src = url('/shot.jpg') + `?t=${Date.now()}`;
+          mediaDl.removeAttribute('href');
+        }
+      }
+
+      function startStream() {
+        mediaDl.removeAttribute('href');
+        mediaView.src = url('/video') + `?t=${Date.now()}`;
+      }
+
+      function stopStream() {
+        mediaView.removeAttribute('src');
+      }
+
+      function setStatus(el, text, cls) {
+        el.className = 'status ' + (cls || '');
+        el.textContent = text;
+      }
+
+      // wire up
+      healthBtn.addEventListener('click', pingHealth);
+      sensorsOnceBtn.addEventListener('click', fetchSensorsOnce);
+      sensorsStartBtn.addEventListener('click', startPolling);
+      sensorsStopBtn.addEventListener('click', stopPolling);
+      getImageBtn.addEventListener('click', grabImage);
+      streamStartBtn.addEventListener('click', startStream);
+      streamStopBtn.addEventListener('click', stopStream);
+
+      // convenience: pressing Enter in base URL triggers health check
+      baseUrlInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') pingHealth();
+      });
+
+      // initial state
+      setTimeout(pingHealth, 1000);
+    })();
+</script>
+</body>
+</html>

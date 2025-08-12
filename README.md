@@ -7,14 +7,14 @@ It streams **synchronized camera video and sensor data** to a host computer over
 
 ## Features (Planned)
 
-- 📹 **Live camera streaming** (MJPEG/HTTP, RTSP, or WebRTC)
-- 📡 **Sensor data streaming** (accelerometer, gyroscope, magnetometer)
-- ⏱ **Time-synchronized frames & IMU** for accurate motion analysis
-- 🔧 **Remote camera control** (exposure, focus, resolution) via API
-- ⚡ **Low-latency modes** for real-time tracking
-- 🔄 **USB fallback** when Wi-Fi performance is insufficient
-- 📂 **Optional local recording** of raw or encoded streams
-- 🛠 **Configurable output formats** for integration with research pipelines
+- Live camera streaming (MJPEG/HTTP, RTSP, or WebRTC)
+- Sensor data streaming (accelerometer, gyroscope, magnetometer)
+- Time-synchronized frames & IMU for accurate motion analysis
+- Remote camera control (exposure, focus, resolution) via API
+- Low-latency modes for real-time tracking
+- USB fallback when Wi-Fi performance is insufficient
+- Optional local recording of raw or encoded streams
+- Configurable output formats for integration with research pipelines
 
 ---
 
@@ -25,20 +25,22 @@ PoseLink adapts and extends VIRec’s architecture to support **live IP streamin
 
 ---
 
-## Planned Architecture
+## Architecture
 
 - **Android (Camera2 + SensorManager)** →  
   Encoded video + sensor JSON packets →  
   **Network Transport (HTTP/RTSP/WebRTC)** →  
   **Python/C++ client** for processing in pose estimation or motion tracking systems.
 
+Streaming and sensor endpoints are implemented and functional, enabling real-time wireless capture.
+
 ---
 
 ## Development Checklist
 
 ### Core Networking
-- [ ] Implement MJPEG/HTTP streaming from camera frames
-- [ ] Implement `/sensors.json` endpoint for live IMU data
+- [x] Implement MJPEG/HTTP streaming from camera frames (streaming functional)
+- [x] Implement `/sensors.json` endpoint for live IMU data (sensor streaming functional)
 - [ ] Add synchronized timestamps to video & sensor streams
 - [ ] Implement optional RTSP streaming of H.264 bitstream
 

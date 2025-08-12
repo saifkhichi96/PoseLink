@@ -13,7 +13,7 @@ class HttpStreamingServer(
     private val frames: JpegFrameProvider,
     private val sensors: SensorJsonProvider? = null,
     private val maxFps: Int = 20
-) : NanoHTTPD(port) {
+) : NanoHTTPD("0.0.0.0", port) {
 
     private val running = AtomicBoolean(false)
 
@@ -38,7 +38,11 @@ class HttpStreamingServer(
             "/health" -> newFixedLengthResponse("OK")
             "/sensors.json" -> {
                 val body = sensors?.snapshotJson() ?: "{}"
-                newFixedLengthResponse(Response.Status.OK, "application/json", body)
+                newFixedLengthResponse(Response.Status.OK, "application/json", body).apply {
+                    addHeader("Access-Control-Allow-Origin", "*")
+                    addHeader("Access-Control-Allow-Methods", "GET, OPTIONS")
+                    addHeader("Access-Control-Allow-Headers", "Content-Type")
+                }
             }
 
             "/shot.jpg" -> {

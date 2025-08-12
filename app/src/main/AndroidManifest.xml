@@ -3,7 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.saifkhichi.poselink">
 
-    <!-- Camera permission required for recording and preview features. -->
+    <!-- Permissions required for recording and streaming features. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CAMERA" />
 
     <!-- Requires OpenGL ES 2.0 for camera preview and rendering. -->

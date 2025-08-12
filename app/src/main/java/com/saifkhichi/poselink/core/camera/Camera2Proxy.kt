@@ -25,7 +25,6 @@ import android.util.Size
 import android.view.Surface
 import androidx.preference.PreferenceManager
 import com.saifkhichi.poselink.app.camera.CameraActivityBase
-import com.saifkhichi.poselink.app.camera.FocalLengthHelper
 import timber.log.Timber
 import java.io.BufferedWriter
 import java.io.FileWriter

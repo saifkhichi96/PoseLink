@@ -25,24 +25,28 @@ import com.saifkhichi.poselink.core.camera.Camera2Proxy
 import com.saifkhichi.poselink.core.camera.ManualFocusConfig
 import com.saifkhichi.poselink.core.sensors.IMUManager
 import com.saifkhichi.poselink.databinding.CameraActivityBinding
+import com.saifkhichi.poselink.streaming.HttpStreamingServer
 import com.saifkhichi.poselink.sync.TimeBaseManager
 import timber.log.Timber
+import java.net.Inet4Address
+import java.net.NetworkInterface
 
 class CameraActivity : CameraActivityBase(), PopupMenu.OnMenuItemClickListener {
     private lateinit var binding: CameraActivityBinding
 
     // Primary camera properties
     private var mPrimaryRenderer: CameraSurfaceRenderer? = null
-    private var mPrimaryCameraHandler: CameraHandler? = null
+    private lateinit var mPrimaryCameraHandler: CameraHandler
 
     // Secondary camera properties
     private var mSecondaryRenderer: CameraSurfaceRenderer? = null
-    private var mSecondaryCameraHandler: CameraHandler? = null
+    private lateinit var mSecondaryCameraHandler: CameraHandler
 
     // Session manager, inertial manager, and time base manager
     private lateinit var mSessionManager: SessionManager
     private lateinit var mImuManager: IMUManager
     private lateinit var mTimeBaseManager: TimeBaseManager
+    private lateinit var mStreamingServer: HttpStreamingServer
 
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,6 +63,7 @@ class CameraActivity : CameraActivityBase(), PopupMenu.OnMenuItemClickListener {
         setupCameras()
         setupGLViews()
         setupSensors()
+        setupStreaming()
     }
 
     override fun onResume() {
@@ -73,13 +78,14 @@ class CameraActivity : CameraActivityBase(), PopupMenu.OnMenuItemClickListener {
         releaseCameras()
         pauseGLViews()
         mImuManager.unregister()
+        mStreamingServer.stopServer()
     }
 
     override fun onDestroy() {
         Timber.d("onDestroy")
         super.onDestroy()
-        mPrimaryCameraHandler?.invalidateHandler()
-        mSecondaryCameraHandler?.invalidateHandler()
+        mPrimaryCameraHandler.invalidateHandler()
+        mSecondaryCameraHandler.invalidateHandler()
     }
 
     private fun setupCameras() {
@@ -155,14 +161,16 @@ class CameraActivity : CameraActivityBase(), PopupMenu.OnMenuItemClickListener {
         mSecondaryGLView = findViewById(R.id.cameraPreview_surfaceView2)
 
         if (mPrimaryRenderer == null) {
-            mPrimaryRenderer = CameraSurfaceRenderer(mPrimaryCameraHandler!!, mPrimaryVideoEncoder, 0)
+            mPrimaryRenderer =
+                CameraSurfaceRenderer(mPrimaryCameraHandler!!, mPrimaryVideoEncoder, 0)
             mPrimaryGLView?.setEGLContextClientVersion(2) // select GLES 2.0
             mPrimaryGLView?.setRenderer(mPrimaryRenderer)
             mPrimaryGLView?.renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
         }
 
         if (mSecondaryRenderer == null) {
-            mSecondaryRenderer = CameraSurfaceRenderer(mSecondaryCameraHandler!!, mSecondaryVideoEncoder, 1)
+            mSecondaryRenderer =
+                CameraSurfaceRenderer(mSecondaryCameraHandler!!, mSecondaryVideoEncoder, 1)
             mSecondaryGLView?.setEGLContextClientVersion(2) // select GLES 2.0
             mSecondaryGLView?.setRenderer(mSecondaryRenderer)
             mSecondaryGLView?.renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
@@ -207,7 +215,6 @@ class CameraActivity : CameraActivityBase(), PopupMenu.OnMenuItemClickListener {
         mSecondaryGLView?.onPause()
     }
 
-
     private fun setupSensors() {
         if (!::mSessionManager.isInitialized) {
             mImuManager = IMUManager(this)
@@ -218,6 +225,33 @@ class CameraActivity : CameraActivityBase(), PopupMenu.OnMenuItemClickListener {
             mSessionManager.onSessionEnded = ::stopRecording
         }
         mSessionManager.setActive(mSecondaryVideoEncoder.isRecording)
+    }
+
+    private fun setupStreaming() {
+        // Create the streaming server
+        mStreamingServer = HttpStreamingServer(
+            port = 8080,
+            frames = mPrimaryVideoEncoder,
+            sensors = mImuManager,
+            maxFps = 30
+        )
+    }
+
+    private fun getLocalIpAddress(): String? {
+        try {
+            val interfaces = NetworkInterface.getNetworkInterfaces()
+            for (i in interfaces) {
+                if (!i.isUp || i.isLoopback) continue
+                for (address in i.inetAddresses) {
+                    if (!address.isLoopbackAddress && address is Inet4Address) {
+                        return address.hostAddress
+                    }
+                }
+            }
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+        return null
     }
 
     fun clickToggleRecording(@Suppress("unused") unused: View?) {
@@ -261,7 +295,18 @@ class CameraActivity : CameraActivityBase(), PopupMenu.OnMenuItemClickListener {
             )
         }
 
-        // TODO: Start HTTP streaming here
+        // Start HTTP streaming here
+        mStreamingServer.startServer()
+        getLocalIpAddress()?.let { ip ->
+            runOnUiThread {
+                findViewById<TextView>(R.id.serverAddressView)?.text =
+                    getString(
+                        R.string.streaming_status_on,
+                        ip,
+                        mStreamingServer.listeningPort
+                    )
+            }
+        }
     }
 
     private fun stopRecording() {
@@ -277,7 +322,12 @@ class CameraActivity : CameraActivityBase(), PopupMenu.OnMenuItemClickListener {
         // Stop the time base manager
         mTimeBaseManager.stopRecording()
 
-        // TODO: Stop HTTP streaming here
+        // Stop HTTP streaming here
+        mStreamingServer.stopServer()
+        runOnUiThread {
+            findViewById<TextView>(R.id.serverAddressView)?.text =
+                getString(R.string.streaming_status_off)
+        }
     }
 
     private fun setupFilterSpinner(spinner: Spinner) {
