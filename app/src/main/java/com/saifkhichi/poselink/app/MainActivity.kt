@@ -81,8 +81,6 @@ class MainActivity : Activity() {
     companion object {
         private val REQUIRED_SDK_PERMISSIONS = arrayOf<String>(
             Manifest.permission.CAMERA,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
         )
 
         private const val REQUEST_CODE_ASK_PERMISSIONS = 5947

@@ -111,13 +111,4 @@
         android:paddingStart="4dp"
         android:paddingEnd="4dp"
         android:text="@string/numSnapshotText" />
-
-    <TextView
-        android:id="@+id/gps_status"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/numSnapshot_text"
-        android:layout_alignStart="@id/cameraParams_text"
-        android:layout_marginTop="10dp"
-        android:text="@string/gpsStatusDisabled" />
 </merge>

@@ -36,7 +36,6 @@ import com.saifkhichi.poselink.core.camera.ManualFocusConfig
 import com.saifkhichi.poselink.core.camera.TextureMovieEncoder
 import com.saifkhichi.poselink.core.camera.TextureMovieEncoder.EncoderConfig
 import com.saifkhichi.poselink.core.camera.VideoEncoderCore
-import com.saifkhichi.poselink.core.sensors.GPSManager
 import com.saifkhichi.poselink.core.sensors.IMUManager
 import com.saifkhichi.poselink.databinding.CameraActivityBinding
 import com.saifkhichi.poselink.gles.FullFrameRect
@@ -236,7 +235,6 @@ class CameraActivity : CameraActivityBase(), PopupMenu.OnMenuItemClickListener {
     private var mRecordingEnabled = false // controls button state
 
     private var mImuManager: IMUManager? = null
-    private var mGpsManager: GPSManager? = null
     private var mTimeBaseManager: TimeBaseManager? = null
 
     private lateinit var binding: CameraActivityBinding
@@ -338,11 +336,6 @@ class CameraActivity : CameraActivityBase(), PopupMenu.OnMenuItemClickListener {
             mTimeBaseManager = TimeBaseManager()
         }
 
-        if (mGpsManager == null) {
-            mGpsManager = GPSManager(this)
-            mTimeBaseManager = TimeBaseManager()
-        }
-
         mKeyCameraParamsText = findViewById(R.id.cameraParams_text)
         mKeyCameraParamsText2 = findViewById(R.id.cameraParams_text2)
         mCaptureResultText = findViewById(R.id.captureResult_text)
@@ -387,7 +380,6 @@ class CameraActivity : CameraActivityBase(), PopupMenu.OnMenuItemClickListener {
         }
 
         mImuManager!!.register()
-        mGpsManager!!.register()
     }
 
     override fun onPause() {
@@ -417,7 +409,6 @@ class CameraActivity : CameraActivityBase(), PopupMenu.OnMenuItemClickListener {
         mGLView2!!.onPause()
 
         mImuManager!!.unregister()
-        mGpsManager!!.unregister()
         Timber.d("onPause complete")
     }
 
@@ -444,14 +435,12 @@ class CameraActivity : CameraActivityBase(), PopupMenu.OnMenuItemClickListener {
             mRenderer2!!.resetOutputFiles(outputFile2, metaFile2)
 
             val inertialFile = outputDir + File.separator + "gyro_accel.csv"
-            val locationFile = outputDir + File.separator + "location.csv"
             val edgeEpochFile = outputDir + File.separator + "edge_epochs.txt"
 
             mCamera2Proxy?.getmTimeSourceValue()?.let {
                 mTimeBaseManager?.startRecording(edgeEpochFile, it)
             }
             mImuManager!!.startRecording(inertialFile)
-            mGpsManager!!.startRecording(locationFile)
             mCamera2Proxy!!.startRecordingCaptureResult(
                 outputDir + File.separator + "movie_metadata.csv"
             )
@@ -462,7 +451,6 @@ class CameraActivity : CameraActivityBase(), PopupMenu.OnMenuItemClickListener {
             mCamera2Proxy!!.stopRecordingCaptureResult()
             mCamera2Proxy2!!.stopRecordingCaptureResult()
             mImuManager!!.stopRecording()
-            mGpsManager!!.stopRecording()
             mTimeBaseManager!!.stopRecording()
         }
 

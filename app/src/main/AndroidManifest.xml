@@ -3,12 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.saifkhichi.poselink">
 
-    <!-- Camera, Storage, and Location permissions -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
-
+    <!-- Camera and Storage permissions -->
     <uses-permission android:name="android.permission.CAMERA" />
 
     <uses-feature

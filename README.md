@@ -1,14 +1,14 @@
 # PoseLink
 
 PoseLink is a real-time mobile capture app for **wireless pose estimation and motion-tracking systems**, built as a fork of [VIRec](https://a3dv.github.io/autvi#virec).  
-It streams **synchronized camera video and sensor data** (IMU, GPS, magnetometer) to a host computer over the network, enabling flexible single- or multi-camera setups without USB tethering.
+It streams **synchronized camera video and sensor data** to a host computer over the network, enabling flexible single- or multi-camera setups without USB tethering.
 
 ---
 
 ## Features (Planned)
 
 - 📹 **Live camera streaming** (MJPEG/HTTP, RTSP, or WebRTC)
-- 📡 **Sensor data streaming** (accelerometer, gyroscope, magnetometer, GPS)
+- 📡 **Sensor data streaming** (accelerometer, gyroscope, magnetometer)
 - ⏱ **Time-synchronized frames & IMU** for accurate motion analysis
 - 🔧 **Remote camera control** (exposure, focus, resolution) via API
 - ⚡ **Low-latency modes** for real-time tracking
@@ -38,14 +38,13 @@ PoseLink adapts and extends VIRec’s architecture to support **live IP streamin
 
 ### Core Networking
 - [ ] Implement MJPEG/HTTP streaming from camera frames
-- [ ] Implement `/sensors.json` endpoint for live IMU/GPS data
+- [ ] Implement `/sensors.json` endpoint for live IMU data
 - [ ] Add synchronized timestamps to video & sensor streams
 - [ ] Implement optional RTSP streaming of H.264 bitstream
 
 ### Sensor Integration
 - [ ] Poll accelerometer, gyroscope, magnetometer at high rate
 - [ ] Fuse orientation (quaternion) from raw IMU data
-- [ ] Integrate GPS (if available)
 - [ ] Ensure timestamp sync with camera frames
 
 ### Remote Control API
