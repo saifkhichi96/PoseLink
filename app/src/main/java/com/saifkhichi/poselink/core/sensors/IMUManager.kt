@@ -12,7 +12,9 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.Process
 import androidx.preference.PreferenceManager
+import com.saifkhichi.poselink.calib.CalibRepository
 import com.saifkhichi.poselink.streaming.SensorJsonProvider
+import org.json.JSONArray
 import org.json.JSONObject
 import timber.log.Timber
 import java.io.BufferedWriter
@@ -101,6 +103,81 @@ class IMUManager(activity: Activity) : SensorEventListener, SensorJsonProvider {
 
     init {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity)
+    }
+
+    // ---- Calibration cache ----
+    private data class AccCal(val A: Array<DoubleArray>?, val b: DoubleArray?, val sigma: DoubleArray?)
+    private data class GyroCal(val bias0: DoubleArray?, val sigma: DoubleArray?)
+    private data class MagCal (val S: Array<DoubleArray>?, val h: DoubleArray?)
+
+    @Volatile private var accCal: AccCal? = null
+    @Volatile private var gyroCal: GyroCal? = null
+    @Volatile private var magCal: MagCal? = null
+    @Volatile private var calibRawJson: String? = null
+
+    private fun loadCalibrationIfNeeded() {
+        if (calibRawJson != null) return
+        val json = sharedPreferences.getString(CalibRepository.KEY_CALIB_JSON, null) ?: return
+        calibRawJson = json
+        try {
+            val root = JSONObject(json)
+
+            // ---- ACC ----
+            val acc = root.optJSONObject("acc")
+            val A = acc?.optJSONArray("A")?.let { parseMat3(it) }
+                ?: acc?.optString("A")?.let { parseMat3(JSONArray(it)) }
+            val b = acc?.optJSONArray("b")?.let { parseVec3(it) }
+                ?: acc?.optString("b")?.let { parseVec3(JSONArray(it)) }
+            val aSig = acc?.optJSONArray("sigma")?.let { parseVec3(it) }
+                ?: acc?.optString("sigma")?.let { parseVec3(JSONArray(it)) }
+            accCal = AccCal(A, b, aSig)
+
+            // ---- GYRO ----
+            val gyro = root.optJSONObject("gyro")
+            val gBias0 = gyro?.optJSONArray("bias0")?.let { parseVec3(it) }
+                ?: gyro?.optString("bias0")?.let { parseVec3(JSONArray(it)) }
+            val gSig = gyro?.optJSONArray("sigma")?.let { parseVec3(it) }
+                ?: gyro?.optString("sigma")?.let { parseVec3(JSONArray(it)) }
+            gyroCal = GyroCal(gBias0, gSig)
+
+            // ---- MAG ----
+            val mag = root.optJSONObject("mag")
+            val S = mag?.optJSONArray("S")?.let { parseMat3(it) }
+                ?: mag?.optString("S")?.let { parseMat3(JSONArray(it)) }
+            val h = mag?.optJSONArray("h")?.let { parseVec3(it) }
+                ?: mag?.optString("h")?.let { parseVec3(JSONArray(it)) }
+            magCal = MagCal(S, h)
+        } catch (_: Exception) {
+            // If parsing fails, keep nulls so we’ll fall back.
+            accCal = null; gyroCal = null; magCal = null; calibRawJson = null
+        }
+    }
+
+    private fun parseVec3(a: JSONArray): DoubleArray {
+        return doubleArrayOf(a.optDouble(0, 0.0), a.optDouble(1, 0.0), a.optDouble(2, 0.0))
+    }
+    private fun parseMat3(m: JSONArray): Array<DoubleArray> {
+        // Accept [[..],[..],[..]] or flattened 9 values
+        return if (m.length() == 3 && m.optJSONArray(0) != null) {
+            arrayOf(
+                parseVec3(m.getJSONArray(0)),
+                parseVec3(m.getJSONArray(1)),
+                parseVec3(m.getJSONArray(2))
+            )
+        } else {
+            arrayOf(
+                doubleArrayOf(m.optDouble(0,1.0), m.optDouble(1,0.0), m.optDouble(2,0.0)),
+                doubleArrayOf(m.optDouble(3,0.0), m.optDouble(4,1.0), m.optDouble(5,0.0)),
+                doubleArrayOf(m.optDouble(6,0.0), m.optDouble(7,0.0), m.optDouble(8,1.0))
+            )
+        }
+    }
+
+    private fun mul3x3v3(M: Array<DoubleArray>, v: DoubleArray): DoubleArray {
+        val x = M[0][0]*v[0] + M[0][1]*v[1] + M[0][2]*v[2]
+        val y = M[1][0]*v[0] + M[1][1]*v[1] + M[1][2]*v[2]
+        val z = M[2][0]*v[0] + M[2][1]*v[1] + M[2][2]*v[2]
+        return doubleArrayOf(x, y, z)
     }
 
     // ---------- recording to file (optional) ----------
@@ -332,6 +409,15 @@ class IMUManager(activity: Activity) : SensorEventListener, SensorJsonProvider {
     }
 
     // ---------- HTTP export ----------
+    override fun calibrationJson(): String {
+        return try {
+            loadCalibrationIfNeeded()
+            calibRawJson ?: "{}"
+        } catch (_: Exception) {
+            "{}"
+        }
+    }
+
     override fun snapshotJson(): String {
         val json = JSONObject()
         // clock: single monotonic base for the snapshot
@@ -395,6 +481,60 @@ class IMUManager(activity: Activity) : SensorEventListener, SensorJsonProvider {
         return json.toString()
     }
 
+    override fun snapshotJsonCalibrated(): String {
+        // Load calibration once
+        loadCalibrationIfNeeded()
+
+        // If no calibration present, just return raw
+        if (accCal == null && gyroCal == null && magCal == null) {
+            return snapshotJson()
+        }
+
+        // Parse fresh snapshot
+        val json = JSONObject(snapshotJson())
+
+        // ---- ACC ----
+        json.optJSONObject("acc")?.let { accObj ->
+            val raw = accObj.optJSONArray("xyz")?.let { arr ->
+                doubleArrayOf(arr.getDouble(0), arr.getDouble(1), arr.getDouble(2))
+            } ?: return@let
+            val cal = accCal
+            val accCalibrated = if (cal?.A != null && cal.b != null) {
+                val v = doubleArrayOf(raw[0] - cal.b[0], raw[1] - cal.b[1], raw[2] - cal.b[2])
+                mul3x3v3(cal.A, v)
+            } else raw
+            accObj.put("xyz", listOf(accCalibrated[0], accCalibrated[1], accCalibrated[2]))
+            cal?.sigma?.let { accObj.put("sigma", listOf(it[0], it[1], it[2])) }
+        }
+
+        // ---- GYRO ----
+        json.optJSONObject("gyro")?.let { gyroObj ->
+            val raw = gyroObj.optJSONArray("xyz")?.let { arr ->
+                doubleArrayOf(arr.getDouble(0), arr.getDouble(1), arr.getDouble(2))
+            } ?: return@let
+            val cal = gyroCal
+            val g = if (cal?.bias0 != null) {
+                doubleArrayOf(raw[0] - cal.bias0[0], raw[1] - cal.bias0[1], raw[2] - cal.bias0[2])
+            } else raw
+            gyroObj.put("xyz", listOf(g[0], g[1], g[2]))
+            cal?.sigma?.let { gyroObj.put("sigma", listOf(it[0], it[1], it[2])) }
+        }
+
+        // ---- MAG ----
+        json.optJSONObject("mag")?.let { magObj ->
+            val raw = magObj.optJSONArray("xyz")?.let { arr ->
+                doubleArrayOf(arr.getDouble(0), arr.getDouble(1), arr.getDouble(2))
+            } ?: return@let
+            val cal = magCal
+            val m = if (cal?.S != null && cal.h != null) {
+                val v = doubleArrayOf(raw[0] - cal.h[0], raw[1] - cal.h[1], raw[2] - cal.h[2])
+                mul3x3v3(cal.S, v)
+            } else raw
+            magObj.put("xyz", listOf(m[0], m[1], m[2]))
+        }
+
+        return json.toString()
+    }
     companion object {
         var ImuHeader: String =
             "Timestamp[nanosec],gx[rad/s],gy[rad/s],gz[rad/s]," + "ax[m/s^2],ay[m/s^2],az[m/s^2],Unix time[nanosec]\n"

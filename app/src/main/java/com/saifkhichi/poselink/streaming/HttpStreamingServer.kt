@@ -55,7 +55,27 @@ class HttpStreamingServer(
                 ).withCors()
             }
 
+            // --- add inside `when (session.uri)` in HttpStreamingServer.serve(...) ---
+
+            "/calib.json" -> {
+                val body = sensors?.calibrationJson()
+                newFixedLengthResponse(
+                    Response.Status.OK,
+                    "application/json",
+                    body
+                ).withCors()
+            }
+
             "/sensors.json" -> {
+                val body = sensors?.snapshotJsonCalibrated()
+                newFixedLengthResponse(
+                    Response.Status.OK,
+                    "application/json",
+                    body
+                ).withCors()
+            }
+
+            "/sensors-raw.json" -> {
                 val body = sensors?.snapshotJson() ?: "{}"
                 newFixedLengthResponse(
                     Response.Status.OK,

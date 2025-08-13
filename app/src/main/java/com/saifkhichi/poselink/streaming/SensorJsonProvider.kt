@@ -1,6 +1,14 @@
 package com.saifkhichi.poselink.streaming
 
 interface SensorJsonProvider {
-    /** A compact JSON string of latest sensor state (thread-safe). */
+
+    /** Sensor calibration data as a JSON string. */
+    fun calibrationJson(): String
+
+    /** Latest raw sensor state as a JSON string. */
     fun snapshotJson(): String
+
+    /** Latest calibrated sensor state as a JSON string. */
+    fun snapshotJsonCalibrated(): String
+
 }
