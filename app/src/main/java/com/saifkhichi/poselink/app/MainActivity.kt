@@ -6,9 +6,13 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.preference.PreferenceManager
 import com.saifkhichi.poselink.app.camera.CameraActivity
+import com.saifkhichi.poselink.calib.CalibRepository
+import com.saifkhichi.poselink.calib.CalibrationActivity
 import com.saifkhichi.poselink.databinding.MainActivityBinding
 import java.util.Arrays
 
@@ -77,10 +81,44 @@ class MainActivity : Activity() {
                 }
             }
             // all permissions were granted
-            val intent = Intent(this, CameraActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            startActivity(intent)
+            proceedAfterPermissions()
         }
+    }
+
+    private fun proceedAfterPermissions() {
+        // Check if calibration JSON exists
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        val calibJson = prefs.getString(CalibRepository.KEY_CALIB_JSON, null)
+
+        if (calibJson.isNullOrEmpty()) {
+            // No calibration yet – prompt the user to calibrate
+            AlertDialog.Builder(this)
+                .setTitle("Device Calibration")
+                .setMessage("Run one-time IMU calibration now? You can redo it later from settings.")
+                .setPositiveButton("Calibrate") { _, _ ->
+                    val intent = Intent(this, CalibrationActivity::class.java)
+                    startActivity(intent)
+                }
+                .setNegativeButton("Skip") { _, _ ->
+                    // Proceed straight to the camera if the user skips
+                    startCameraActivity()
+                }
+                .show()
+        } else {
+            // Calibration exists – go straight to the camera
+            startCameraActivity()
+        }
+    }
+
+    private fun startCameraActivity() {
+        val intent = Intent(this, CameraActivity::class.java).apply {
+            addFlags(
+                Intent.FLAG_ACTIVITY_NO_ANIMATION or
+                        Intent.FLAG_ACTIVITY_NEW_TASK or
+                        Intent.FLAG_ACTIVITY_CLEAR_TASK
+            )
+        }
+        startActivity(intent)
     }
 
     companion object {

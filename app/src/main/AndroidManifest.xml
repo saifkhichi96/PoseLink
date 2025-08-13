@@ -55,6 +55,14 @@
             </intent-filter>
         </activity>
 
+        <!-- CalibrationActivity: Interface for calibrating sensors.
+            Provides a wizard for one-time sensor calibration.
+            Accessed from MainActivity or SettingsActivity.
+        -->
+        <activity
+            android:name=".calib.CalibrationActivity"
+            android:exported="false"/>
+
         <!--
             CameraActivity: Main camera interface for recording and preview.
             Handles orientation and configuration changes.

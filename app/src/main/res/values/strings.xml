@@ -45,4 +45,36 @@
         8. <b>gyro_accel.csv</b>: IMU data.\n
     </string>
     <string name="versionName">PoseLink v%1$s</string>
+
+    <string name="calibration">Calibration</string>
+    <string name="next">Next</string>
+    <string name="back">Back</string>
+    <string name="start">Start</string>
+    <string name="finish">Finish</string>
+
+    <string name="calib_welcome">Welcome</string>
+    <string name="calib_welcome_title">Calibrate your device’s IMU</string>
+    <string name="calib_welcome_body">This wizard will calibrate accelerometer, gyroscope, and magnetometer. You can re-run it anytime. Place the phone as instructed and hold still when asked.</string>
+
+    <string name="calib_accel_title">Accelerometer</string>
+    <string name="accel_instructions">We’ll capture 6 orientations: +Z, −Z, +X, −X, +Y, −Y facing up. Place the phone flat in each pose and press “Capture”.</string>
+    <string name="accel_place_face">Place phone with %1$s and press Capture.</string>
+    <string name="face_done_next">%1$s — captured. Move to next face.</string>
+    <string name="capture_face">Capture</string>
+    <string name="hold_still_collecting">Hold still… collecting samples</string>
+    <string name="too_noisy_try_again">Too noisy or not enough samples. Try again.</string>
+    <string name="accel_done">Accelerometer calibrated.</string>
+
+    <string name="calib_gyro_title">Gyroscope</string>
+    <string name="gyro_hold_title">Hold phone still on a surface</string>
+    <string name="gyro_done">Gyroscope bias estimated.</string>
+
+    <string name="calib_mag_title">Magnetometer</string>
+    <string name="mag_tumble_title">Slowly tumble the phone</string>
+    <string name="mag_tumble_collecting">Rotate the phone in all directions for ~60 seconds to sample the magnetic field.</string>
+    <string name="mag_done">Magnetometer offsets estimated.</string>
+
+    <string name="calib_summary_title">Summary &amp; Save</string>
+    <string name="recalibrate">Re-calibrate</string>
+    <string name="save">Save</string>
 </resources>
